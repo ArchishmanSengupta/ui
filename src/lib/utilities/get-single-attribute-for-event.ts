@@ -14,6 +14,7 @@ import { has } from './has';
 import { isObject } from './is';
 import {
   isLocalActivityMarkerEvent,
+  isMarkerRecordedEvent,
   isWorkflowExecutionUpdateAcceptedEvent,
 } from './is-event-type';
 import {
@@ -309,6 +310,21 @@ export const getEventSummaryAttribute = (
     const activityType = getActivityType(payload);
     if (activityType) {
       return formatSummaryValue('ActivityType', activityType);
+    }
+  }
+
+  if (
+    isMarkerRecordedEvent(event) &&
+    event.attributes?.markerName === 'Version'
+  ) {
+    const details = event.markerRecordedEventAttributes?.details;
+    if (details?.version?.payloads?.[0]) {
+      const versionPayload = decodePayload(
+        details.version.payloads[0] as unknown as Payload,
+      );
+      if (versionPayload) {
+        return formatSummaryValue('Version', versionPayload);
+      }
     }
   }
 
